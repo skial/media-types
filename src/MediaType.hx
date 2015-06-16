@@ -56,6 +56,15 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 		return new MediaType( new MimeParser().toTokens( ByteData.ofString( v ), 'mediatype-fromstring' ) );
 	}
 	
+	@:noCompletion @:to public inline function toString():String {
+		return [for (token in this) switch (token) {
+			case Keyword(Toplevel(n)): n;
+			case Keyword(Tree(n)), Keyword(Subtype(n)): '/$n';
+			case Keyword(Suffix(n)): '+$n';
+			case Keyword(Parameter(n, v)): '; $n=$v';
+		}].join('');
+	}
+	
 	private inline function get_isApplication():Bool return this[0].match( Keyword(Toplevel('application')) );
 	private inline function get_isAudio():Bool return this[0].match( Keyword(Toplevel('audio')) );
 	private inline function get_isExample():Bool return this[0].match( Keyword(Toplevel('example')) );
