@@ -62,6 +62,7 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 			case Keyword(Tree(n)), Keyword(Subtype(n)): '/$n';
 			case Keyword(Suffix(n)): '+$n';
 			case Keyword(Parameter(n, v)): '; $n=$v';
+			case _: '';
 		}].join('');
 	}
 	
@@ -114,12 +115,12 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 		case _: null;
 	} else {
 		null;
-	}
+	};
 	
-	private inline function get_isXml():Bool return this.length >= 3) && this[2].match( Keyword(Suffix('xml')) );
-	private inline function get_isJson():Bool return this.length >= 3) && this[2].match( Keyword(Suffix('json')) );
+	private inline function get_isXml():Bool return this.length >= 3 && this[2].match( Keyword(Suffix('xml')) );
+	private inline function get_isJson():Bool return this.length >= 3 && this[2].match( Keyword(Suffix('json')) );
 	
-	private inline function get_subtype():Null<String> return if (this.length >= 3) switch (this[2]) {
+	private inline function get_suffix():Null<String> return if (this.length >= 3) switch (this[2]) {
 		case Keyword(Suffix(n)): n;
 		case _: null;
 	} else {
@@ -127,12 +128,14 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 	}
 	
 	private inline function get_parameters():Null<StringMap<String>> {
-		var params = [for (token in this) if (token.match( Keyword(Parameter(_, _)) ) token)];
+		var params = [for (token in this) if (token.match( Keyword(Parameter(_, _)) )) token];
 		if (params.length > 0) {
-			return [for (param in params) switch(param) {
-				case Keyword(Parameter(name, value)): name => value;
-				case _: '' => '';
+			var map = new StringMap();
+			[for (param in params) switch(param) {
+				case Keyword(Parameter(name, value)): map.set(name, value);
+				case _:
 			}];
+			return map;
 			
 		} else {
 			return null;
