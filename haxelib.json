@@ -1,0 +1,14 @@
+{
+  "name": "media-types",
+  "license": "MIT",
+  "classPath": "src",
+  "tags": ["uhu", "uhx", "media", "internet", "mime", "types"],
+  "description": "A library which parses mime/media/internet types.",
+  "contributors": ["skial"],
+  "releasenote": "Initial Release",
+  "version": "0.0.1-alpha",
+  "url": "https://github.com/skial/media-types",
+  "dependencies": {
+	"mo": ""
+  }
+}
