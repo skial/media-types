@@ -28,27 +28,11 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 	public var toplevel(get, never):Null<String>;
 	
 	// Tree checks
-	public inline function isStandard():Bool return this.length >= 2 && (switch (this[1]) {
-		case Keyword(Tree(_)): false;
-		case _: true;
-	});
-	
-	public inline function isVendor():Bool return this.length >= 2 && (switch (this[1]) {
-		case Keyword(Tree(n)): n.startsWith('vnd.');
-		case _: false;
-	});
-	
-	public inline function isPersonal():Bool return this.length >= 2 &&  (switch (this[1]) {
-		case Keyword(Tree(n)): n.startsWith('prs.');
-		case _: false;
-	});
-	
+	public inline function isStandard():Bool return this.length >= 2 && !this[1].match( Keyword(Tree(_)) );
+	public inline function isVendor():Bool return this.length >= 2 && this[1].match( Keyword(Tree(_.startsWith('vnd.') => true)) );
+	public inline function isPersonal():Bool return this.length >= 2 && this[1].match( Keyword(Tree(_.startsWith('prs.') => true)) );
 	public inline function isVanity():Bool return isPersonal();
-	
-	public inline function isUnregistered():Bool return this.length >= 2 &&  (switch (this[1]) {
-		case Keyword(Tree(n)): n.startsWith('x.');
-		case _: false;
-	});
+	public inline function isUnregistered():Bool return this.length >= 2 && this[1].match( Keyword(Tree(_.startsWith('x.') => true)) );
 	
 	public var tree(get, never):Null<String>;
 	
