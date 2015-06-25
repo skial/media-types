@@ -15,24 +15,24 @@ using StringTools;
 abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> to Array<Token<MimeKeywords>> {
 	
 	// Toplevel checks
-	public var isApplication(get, never):Bool;
-	public var isAudio(get, never):Bool;
-	public var isExample(get, never):Bool;
-	public var isImage(get, never):Bool;
-	public var isMessage(get, never):Bool;
-	public var isModel(get, never):Bool;
-	public var isMultipart(get, never):Bool;
-	public var isText(get, never):Bool;
-	public var isVideo(get, never):Bool;
+	public inline function isApplication():Bool return this[0].match( Keyword(Toplevel('application')) );
+	public inline function isAudio():Bool return this[0].match( Keyword(Toplevel('audio')) );
+	public inline function isExample():Bool return this[0].match( Keyword(Toplevel('example')) );
+	public inline function isImage():Bool return this[0].match( Keyword(Toplevel('image')) );
+	public inline function isMessage():Bool return this[0].match( Keyword(Toplevel('message')) );
+	public inline function isModel():Bool return this[0].match( Keyword(Toplevel('model')) );
+	public inline function isMultipart():Bool return this[0].match( Keyword(Toplevel('multipart')) );
+	public inline function isText():Bool return this[0].match( Keyword(Toplevel('text')) );
+	public inline function isVideo():Bool return this[0].match( Keyword(Toplevel('video')) );
 	
-	public var toplevel(get, never):String;
+	public var toplevel(get, never):Null<String>;
 	
 	// Tree checks
-	public var isStandard(get, never):Bool;
-	public var isVendor(get, never):Bool;
-	public var isPersonal(get, never):Bool;
-	public var isVanity(get, never):Bool;	// Same as `isPersonal`
-	public var isUnregistered(get, never):Bool;
+	public inline function isStandard():Bool return this.length >= 2 && !this[1].match( Keyword(Tree(_)) );
+	public inline function isVendor():Bool return this.length >= 2 && this[1].match( Keyword(Tree(_.startsWith('vnd.') => true)) );
+	public inline function isPersonal():Bool return this.length >= 2 && this[1].match( Keyword(Tree(_.startsWith('prs.') => true)) );
+	public inline function isVanity():Bool return isPersonal();
+	public inline function isUnregistered():Bool return this.length >= 2 && this[1].match( Keyword(Tree(_.startsWith('x.') => true)) );
 	
 	public var tree(get, never):Null<String>;
 	
@@ -40,8 +40,8 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 	public var subtype(get, never):Null<String>;
 	
 	// Suffix checks
-	public var isXml(get, never):Bool;
-	public var isJson(get, never):Bool;
+	public inline function isXml():Bool return this.length >= 3 && this[2].match( Keyword(Suffix('xml')) );
+	public inline function isJson():Bool return this.length >= 3 && this[2].match( Keyword(Suffix('json')) );
 	
 	public var suffix(get, never):Null<String>;
 	
@@ -66,42 +66,10 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 		}].join('');
 	}
 	
-	private inline function get_isApplication():Bool return this[0].match( Keyword(Toplevel('application')) );
-	private inline function get_isAudio():Bool return this[0].match( Keyword(Toplevel('audio')) );
-	private inline function get_isExample():Bool return this[0].match( Keyword(Toplevel('example')) );
-	private inline function get_isImage():Bool return this[0].match( Keyword(Toplevel('image')) );
-	private inline function get_isMessage():Bool return this[0].match( Keyword(Toplevel('message')) );
-	private inline function get_isModel():Bool return this[0].match( Keyword(Toplevel('model')) );
-	private inline function get_isMultipart():Bool return this[0].match( Keyword(Toplevel('multipart')) );
-	private inline function get_isText():Bool return this[0].match( Keyword(Toplevel('text')) );
-	private inline function get_isVideo():Bool return this[0].match( Keyword(Toplevel('video')) );
-	
 	private inline function get_toplevel():Null<String> return switch (this[0]) {
 		case Keyword(Toplevel(n)): n;
 		case _: null;
 	}
-	
-	private inline function get_isStandard():Bool return this.length >= 2 && (switch (this[1]) {
-		case Keyword(Tree(_)): false;
-		case _: true;
-	});
-	
-	private inline function get_isVendor():Bool return this.length >= 2 && (switch (this[1]) {
-		case Keyword(Tree(n)): n.startsWith('vnd.');
-		case _: false;
-	});
-	
-	private inline function get_isPersonal():Bool return this.length >= 2 &&  (switch (this[1]) {
-		case Keyword(Tree(n)): n.startsWith('prs.');
-		case _: false;
-	});
-	
-	private inline function get_isVanity():Bool return get_isPersonal();
-	
-	private inline function get_isUnregistered():Bool return this.length >= 2 &&  (switch (this[1]) {
-		case Keyword(Tree(n)): n.startsWith('x.');
-		case _: false;
-	});
 	
 	private inline function get_tree():Null<String> return if (this.length >= 2) switch (this[1]) {
 		case Keyword(Tree(n)): n;
@@ -116,9 +84,6 @@ abstract MediaType(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> t
 	} else {
 		null;
 	};
-	
-	private inline function get_isXml():Bool return this.length >= 3 && this[2].match( Keyword(Suffix('xml')) );
-	private inline function get_isJson():Bool return this.length >= 3 && this[2].match( Keyword(Suffix('json')) );
 	
 	private inline function get_suffix():Null<String> return if (this.length >= 3) switch (this[2]) {
 		case Keyword(Suffix(n)): n;
