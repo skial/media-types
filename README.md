@@ -26,7 +26,7 @@ You need to install the following libraries from GitHub.
 2. mo - `haxelib git mo https://github.com/skial/mo master src`
 3. media-types - `haxelib git media-types https://github.com/skial/media-types master src`
 
-Then in your `.hxml` file, add `-lib media-types` and your set.
+Then in your `.hxml` file, add `-lib media-types` and you're set.
 	
 ## Usage
 
