@@ -3,8 +3,9 @@ package;
 import uhx.mo.Token;
 import byte.ByteData;
 import haxe.ds.StringMap;
-import uhx.lexer.MimeLexer;
-import uhx.lexer.MimeParser;
+import uhx.lexer.Mime.MimeKeywords;
+import uhx.lexer.Mime as MimeLexer;
+import uhx.parser.Mime as MimeParser;
 
 using StringTools;
 
