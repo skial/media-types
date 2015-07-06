@@ -30,10 +30,12 @@ Then in your `.hxml` file, add `-lib media-types` and you're set.
 	
 ## Usage
 
-Create a variable, typed as `MediaType` with a `String` value containing a media type.
+Create a variable, typed as `uhx.types.MediaType` with a `String` value containing a media type.
 
 ```Haxe
 package ;
+
+import uhx.types.MediaType;
 
 class Main {
 	
