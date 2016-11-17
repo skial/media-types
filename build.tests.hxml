@@ -1,0 +1,15 @@
+-cp ./src
+-cp ./tests
+
+-lib utest
+-lib media-types
+
+-main Main
+
+--each
+
+-neko bin/spec.n
+
+--next
+
+-js bin/spec.js
