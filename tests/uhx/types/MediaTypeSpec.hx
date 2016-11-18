@@ -65,4 +65,16 @@ class MediaTypeSpec {
 		Assert.equals( 'vnd.a.b.1.2', mt.tree );
 	}
 	
+	public function testVariable() {
+		var mime = 'text/plain';
+		var mt:MediaType = mime;
+		
+		Assert.equals( 'text', mt.toplevel );
+		Assert.equals( 'plain', mt.subtype );
+		Assert.isTrue( mt.isText() );
+		Assert.isNull( mt.suffix );
+		Assert.isNull( mt.parameters );
+		Assert.equals( 'text/plain', '$mt' );
+	}
+	
 }

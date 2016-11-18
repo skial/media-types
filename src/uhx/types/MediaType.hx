@@ -6,6 +6,10 @@ import haxe.ds.StringMap;
 import uhx.lexer.Mime.MimeKeywords;
 import uhx.lexer.Mime as MimeLexer;
 import uhx.parser.Mime as MimeParser;
+#if macro
+import haxe.macro.Expr;
+import haxe.macro.Context;
+#end
 
 using StringTools;
 #if macro
@@ -25,89 +29,142 @@ uhx.types.MediaTypeAbstract
 #end
 ;
 
-/*@:forward abstract MediaTypeRouter(MediaTypeApi) {
-	
-	@:from public static macro function fromConstString(v:String) {
-		trace( v );
-		var mime = (v:uhx.types.MediaTypeAbstract);
-		var parameters = macro null;
-		
-		if (mime.parameters != null) {
-			// todo write map expression;
-		}
-		
-		var result = macro @:mergeBlock { 
-			var mime:MediaTypeStruct = new MediaTypeStruct();
-			mime.isApplication = ($v{mime.isApplication()}:Bool);
-			mime.isAudio = ($v{mime.isAudio()}:Bool);
-			mime.isExample = ($v{mime.isExample()}:Bool);
-			mime.isImage = ($v{mime.isImage()}:Bool);
-			mime.isMessage = ($v{mime.isMessage()}:Bool);
-			mime.isModel = ($v{mime.isModel()}:Bool);
-			mime.isMultipart = ($v{mime.isMultipart()}:Bool);
-			mime.isText = ($v{mime.isText()}:Bool);
-			mime.isVideo = ($v{mime.isVideo()}:Bool);
-			mime.isStandard = ($v{mime.isStandard()}:Bool);
-			mime.isVendor = ($v{mime.isVendor()}:Bool);
-			mime.isPersonal = ($v{mime.isPersonal()}:Bool);
-			mime.isUnregistered = ($v{mime.isUnregistered()}:Bool);
-			mime.isXml = ($v{mime.isXml()}:Bool);
-			mime.isJson = ($v{mime.isJson()}:Bool);
-			mime.toplevel = ($v{mime.toplevel}:Null<String>);
-			mime.tree = ($v{mime.tree}:Null<String>);
-			mime.subtype = ($v{mime.subtype}:Null<String>);
-			mime.suffix = ($v{mime.suffix}:Null<String>);
-			mime.parameters = $parameters;
-			((mime:MediaTypeConst):MediaTypeApi);
-		}
-		trace( result.toString() );
-		return result;
-		//return macro $v{v};
-	}
-	
-}*/
-
 abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct to MediaTypeStruct {
 	
-	@:from public static macro function fromConstString(v:String) {
-		trace( v );
-		var mime = (v:uhx.types.MediaTypeAbstract);
-		var parameters = macro null;
+	@:from public static macro function fromExpr(v:Expr) {
+		var result = macro @:pos(v.pos) throw 'Could not convert the expression ' + $v{v.toString()} + ' to a mime type.';
 		
-		if (mime.parameters != null) {
-			var exprs = [];
-			for (key in mime.parameters.keys()) exprs.push( macro $v{key}=>$v{mime.parameters.get(key)} );
-			parameters = macro $a{exprs};
+		switch v {
+			case _.expr => EConst(CString(value)):
+				var mime = (value:uhx.types.MediaTypeAbstract);
+				var parameters = macro null;
+				
+				if (mime.parameters != null) {
+					var exprs = [];
+					for (key in mime.parameters.keys()) exprs.push( macro $v{key}=>$v{mime.parameters.get(key)} );
+					parameters = macro $a{exprs};
+				}
+				
+				result = if (!Context.defined('js')) { 
+					macro @:mergeBlock { 
+						// TODO generate random variable name as best as possible.
+						// TODO figure out why @:structInit created classes does not work.
+						var mime:MediaTypeStruct = new MediaTypeStruct();
+						mime.isApplication = ($v{mime.isApplication()}:Bool);
+						mime.isAudio = ($v{mime.isAudio()}:Bool);
+						mime.isExample = ($v{mime.isExample()}:Bool);
+						mime.isImage = ($v{mime.isImage()}:Bool);
+						mime.isMessage = ($v{mime.isMessage()}:Bool);
+						mime.isModel = ($v{mime.isModel()}:Bool);
+						mime.isMultipart = ($v{mime.isMultipart()}:Bool);
+						mime.isText = ($v{mime.isText()}:Bool);
+						mime.isVideo = ($v{mime.isVideo()}:Bool);
+						mime.isStandard = ($v{mime.isStandard()}:Bool);
+						mime.isVendor = ($v{mime.isVendor()}:Bool);
+						mime.isPersonal = ($v{mime.isPersonal()}:Bool);
+						mime.isUnregistered = ($v{mime.isUnregistered()}:Bool);
+						mime.isXml = ($v{mime.isXml()}:Bool);
+						mime.isJson = ($v{mime.isJson()}:Bool);
+						mime.toplevel = ($v{mime.toplevel}:Null<String>);
+						mime.tree = ($v{mime.tree}:Null<String>);
+						mime.subtype = ($v{mime.subtype}:Null<String>);
+						mime.suffix = ($v{mime.suffix}:Null<String>);
+						mime.parameters = $parameters;
+						(mime:MediaTypeConst);
+					}
+					
+				} else {
+					macro @:mergeBlock {
+						var mime:MediaTypeStruct = {
+							isApplication: ($v{mime.isApplication()}:Bool),
+							isAudio: ($v{mime.isAudio()}:Bool),
+							isExample: ($v{mime.isExample()}:Bool),
+							isImage: ($v{mime.isImage()}:Bool),
+							isMessage: ($v{mime.isMessage()}:Bool),
+							isModel: ($v{mime.isModel()}:Bool),
+							isMultipart: ($v{mime.isMultipart()}:Bool),
+							isText: ($v{mime.isText()}:Bool),
+							isVideo: ($v{mime.isVideo()}:Bool),
+							isStandard: ($v{mime.isStandard()}:Bool),
+							isVendor: ($v{mime.isVendor()}:Bool),
+							isPersonal: ($v{mime.isPersonal()}:Bool),
+							isUnregistered: ($v{mime.isUnregistered()}:Bool),
+							isXml: ($v{mime.isXml()}:Bool),
+							isJson: ($v{mime.isJson()}:Bool),
+							toplevel: ($v{mime.toplevel}:Null<String>),
+							tree: ($v{mime.tree}:Null<String>),
+							subtype: ($v{mime.subtype}:Null<String>),
+							suffix: ($v{mime.suffix}:Null<String>),
+							parameters: $parameters,
+						};
+						(mime:MediaTypeConst);
+					}
+					
+				}
+				
+			case _:
+				var struct = if (Context.defined('js')) {
+					macro @:mergeBlock {
+						var struct:MediaTypeStruct = {
+							isApplication: (mime.isApplication():Bool),
+							isAudio: (mime.isAudio():Bool),
+							isExample: (mime.isExample():Bool),
+							isImage: (mime.isImage():Bool),
+							isMessage: (mime.isMessage():Bool),
+							isModel: (mime.isModel():Bool),
+							isMultipart: (mime.isMultipart():Bool),
+							isText: (mime.isText():Bool),
+							isVideo: (mime.isVideo():Bool),
+							isStandard: (mime.isStandard():Bool),
+							isVendor: (mime.isVendor():Bool),
+							isPersonal: (mime.isPersonal():Bool),
+							isUnregistered: (mime.isUnregistered():Bool),
+							isXml: (mime.isXml():Bool),
+							isJson: (mime.isJson():Bool),
+							toplevel: (mime.toplevel:Null<String>),
+							tree: (mime.tree:Null<String>),
+							subtype: (mime.subtype:Null<String>),
+							suffix: (mime.suffix:Null<String>),
+							parameters: mime.parameters,
+						};
+					}
+					
+				} else {
+					macro @:mergeBlock {
+						var struct:MediaTypeStruct = new MediaTypeStruct();
+						struct.isApplication = (mime.isApplication():Bool);
+						struct.isAudio = (mime.isAudio():Bool);
+						struct.isExample = (mime.isExample():Bool);
+						struct.isImage = (mime.isImage():Bool);
+						struct.isMessage = (mime.isMessage():Bool);
+						struct.isModel = (mime.isModel():Bool);
+						struct.isMultipart = (mime.isMultipart():Bool);
+						struct.isText = (mime.isText():Bool);
+						struct.isVideo = (mime.isVideo():Bool);
+						struct.isStandard = (mime.isStandard():Bool);
+						struct.isVendor = (mime.isVendor():Bool);
+						struct.isPersonal = (mime.isPersonal():Bool);
+						struct.isUnregistered = (mime.isUnregistered():Bool);
+						struct.isXml = (mime.isXml():Bool);
+						struct.isJson = (mime.isJson():Bool);
+						struct.toplevel = (mime.toplevel:Null<String>);
+						struct.tree = (mime.tree:Null<String>);
+						struct.subtype = (mime.subtype:Null<String>);
+						struct.suffix = (mime.suffix:Null<String>);
+						struct.parameters = mime.parameters;
+					}
+					
+				}
+				
+				result = macro @:mergeBlock { 
+					var mime = ($v:MediaTypeAbstract);
+					$struct;
+					(struct:MediaTypeConst);
+				}
+				
 		}
 		
-		var result = macro @:mergeBlock { 
-			// TODO generate random variable name as best as possible.
-			var mime:MediaTypeStruct = new MediaTypeStruct();
-			mime.isApplication = ($v{mime.isApplication()}:Bool);
-			mime.isAudio = ($v{mime.isAudio()}:Bool);
-			mime.isExample = ($v{mime.isExample()}:Bool);
-			mime.isImage = ($v{mime.isImage()}:Bool);
-			mime.isMessage = ($v{mime.isMessage()}:Bool);
-			mime.isModel = ($v{mime.isModel()}:Bool);
-			mime.isMultipart = ($v{mime.isMultipart()}:Bool);
-			mime.isText = ($v{mime.isText()}:Bool);
-			mime.isVideo = ($v{mime.isVideo()}:Bool);
-			mime.isStandard = ($v{mime.isStandard()}:Bool);
-			mime.isVendor = ($v{mime.isVendor()}:Bool);
-			mime.isPersonal = ($v{mime.isPersonal()}:Bool);
-			mime.isUnregistered = ($v{mime.isUnregistered()}:Bool);
-			mime.isXml = ($v{mime.isXml()}:Bool);
-			mime.isJson = ($v{mime.isJson()}:Bool);
-			mime.toplevel = ($v{mime.toplevel}:Null<String>);
-			mime.tree = ($v{mime.tree}:Null<String>);
-			mime.subtype = ($v{mime.subtype}:Null<String>);
-			mime.suffix = ($v{mime.suffix}:Null<String>);
-			mime.parameters = $parameters;
-			(mime:MediaTypeConst);
-		}
-		trace( result.toString() );
-		return result;
-		//return macro $v{v};
+		return macro @:pos(v.pos) $result;
 	}
 	
 	public inline function isApplication():Bool return this.isApplication;
@@ -158,26 +215,26 @@ abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct to MediaTypeStruct
 	
 }
 
-class MediaTypeStruct {
-	
+#if js
+typedef MediaTypeStruct = {
 	// Toplevel checks
-	public var isApplication:Bool = false;
-	public var isAudio:Bool = false;
-	public var isExample:Bool = false;
-	public var isImage:Bool = false;
-	public var isMessage:Bool = false;
-	public var isModel:Bool = false;
-	public var isMultipart:Bool = false;
-	public var isText:Bool = false;
-	public var isVideo:Bool = false;
+	public var isApplication:Bool;
+	public var isAudio:Bool;
+	public var isExample:Bool;
+	public var isImage:Bool;
+	public var isMessage:Bool;
+	public var isModel:Bool;
+	public var isMultipart:Bool;
+	public var isText:Bool;
+	public var isVideo:Bool;
 	
 	public var toplevel:Null<String>;
 	
 	// Tree checks
-	public var isStandard:Bool = false;
-	public var isVendor:Bool = false;
-	public var isPersonal:Bool = false;
-	public var isUnregistered:Bool = false;
+	public var isStandard:Bool;
+	public var isVendor:Bool;
+	public var isPersonal:Bool;
+	public var isUnregistered:Bool;
 	
 	public var tree:Null<String>;
 	
@@ -185,8 +242,45 @@ class MediaTypeStruct {
 	public var subtype:Null<String>;
 	
 	// Suffix checks
-	public var isXml:Bool = false;
-	public var isJson:Bool = false;
+	public var isXml:Bool;
+	public var isJson:Bool;
+	
+	public var suffix:Null<String>;
+	
+	// Parameter
+	public var parameters:Null<StringMap<String>>;
+}
+#else
+@:structInit
+class MediaTypeStruct {
+	
+	// Toplevel checks
+	public var isApplication:Bool;
+	public var isAudio:Bool;
+	public var isExample:Bool;
+	public var isImage:Bool;
+	public var isMessage:Bool;
+	public var isModel:Bool;
+	public var isMultipart:Bool;
+	public var isText:Bool;
+	public var isVideo:Bool;
+	
+	public var toplevel:Null<String>;
+	
+	// Tree checks
+	public var isStandard:Bool;
+	public var isVendor:Bool;
+	public var isPersonal:Bool;
+	public var isUnregistered:Bool;
+	
+	public var tree:Null<String>;
+	
+	// Subtype
+	public var subtype:Null<String>;
+	
+	// Suffix checks
+	public var isXml:Bool;
+	public var isJson:Bool;
 	
 	public var suffix:Null<String>;
 	
@@ -198,6 +292,7 @@ class MediaTypeStruct {
 	}
 	
 }
+#end
 
 abstract MediaTypeAbstract(Array<Token<MimeKeywords>>) from Array<Token<MimeKeywords>> to Array<Token<MimeKeywords>> {
 	
@@ -239,7 +334,7 @@ abstract MediaTypeAbstract(Array<Token<MimeKeywords>>) from Array<Token<MimeKeyw
 		this = v;
 	}
 	
-	@:noCompletion @:from public inline static inline function fromRuntimeString(v:String):MediaTypeAbstract {
+	@:noCompletion @:from public inline static inline function fromString(v:String):MediaTypeAbstract {
 		return new MediaTypeAbstract( new MimeParser().toTokens( ByteData.ofString( v ), 'mediatype-fromstring' ) );
 	}
 	
