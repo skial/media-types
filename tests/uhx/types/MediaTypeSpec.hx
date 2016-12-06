@@ -3,6 +3,13 @@ package uhx.types;
 import utest.Assert;
 import uhx.types.MediaType;
 
+#if macro
+import uhx.types.ObjectDecl;
+
+using haxe.macro.ExprTools;
+using uhx.macro.mime.Helper;
+#end
+
 /**
  * ...
  * @author Skial Bainn
@@ -41,7 +48,7 @@ class MediaTypeSpec {
 		Assert.equals( 'UTF-8', params.get( 'charset' ) );
 	}
 	
-	public function testMultParameters() {
+	public function testMultiParameters() {
 		var mt:MediaType = 'text/plain; charset=UTF-8; name=value; hello=world';
 		var params = mt.parameters;
 		
@@ -65,7 +72,7 @@ class MediaTypeSpec {
 		Assert.equals( 'vnd.a.b.1.2', mt.tree );
 	}
 	
-	public function testVariable() {
+	public function testVariable_Macro() {
 		var mime = 'text/plain';
 		var mt:MediaType = mime;
 		
@@ -76,5 +83,39 @@ class MediaTypeSpec {
 		Assert.isNull( mt.parameters );
 		Assert.equals( 'text/plain', '$mt' );
 	}
+	
+	#if macro
+	@:access(uhx.macro)
+	public function testTemplateBuilder_haxifySimple() {
+		var mime:MediaType = 'text/plain';
+		var tmpToplevel = new ObjectDecl();
+		
+		mime.store( tmpToplevel );
+		
+		Assert.equals( '{ text : { plain : "text/plain" } }', tmpToplevel.toExpr().toString() );
+	}
+	
+	@:access(uhx.macro)
+	public function testTemplateBuilder_haxeifyComplex() {
+		var mime:MediaType = 'text/vnd.a.b.c; charset=UTF-8;';
+		var tmpToplevel = new ObjectDecl();
+
+		mime.store( tmpToplevel );
+		
+		Assert.equals( '{ text : { vnd : { a : { b : { c : "text/vnd.a.b.c; charset=UTF-8" } } } } }', tmpToplevel.toExpr().toString() );
+	}
+	
+	@:access(uhx.macro)
+	public function testTemplateBuilder_haxeifyOverlap() {
+		var m1:MediaType = 'text/vnd.a; a=b;';
+		var m2:MediaType = 'text/vnd.a.b';
+		var tmpToplevel = new ObjectDecl();
+		
+		m1.store( tmpToplevel );
+		m2.store( tmpToplevel );
+		
+		Assert.equals( '{ text : { vnd : { a : { toString : function() return "text/vnd.a; a=b", b : "text/vnd.a.b" } } } }', tmpToplevel.toExpr().toString() );
+	}
+	#end
 	
 }
