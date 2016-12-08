@@ -17,58 +17,57 @@ class Helper {
 			parameters = macro $a{exprs};
 		}
         
-        return macro @:mergeBlock { 
+        return macro ({ 
 			// TODO generate random variable name as best as possible.
 			// TODO figure out why @:structInit created classes does not work.
-			var mime:MediaTypeStruct = new MediaTypeStruct();
-			mime.isApplication = ($v{mime.isApplication()}:Bool);
-			mime.isAudio = ($v{mime.isAudio()}:Bool);
-			mime.isExample = ($v{mime.isExample()}:Bool);
-			mime.isImage = ($v{mime.isImage()}:Bool);
-			mime.isMessage = ($v{mime.isMessage()}:Bool);
-			mime.isModel = ($v{mime.isModel()}:Bool);
-			mime.isMultipart = ($v{mime.isMultipart()}:Bool);
-			mime.isText = ($v{mime.isText()}:Bool);
-			mime.isVideo = ($v{mime.isVideo()}:Bool);
-			mime.isStandard = ($v{mime.isStandard()}:Bool);
-			mime.isVendor = ($v{mime.isVendor()}:Bool);
-			mime.isPersonal = ($v{mime.isPersonal()}:Bool);
-			mime.isUnregistered = ($v{mime.isUnregistered()}:Bool);
-			mime.isXml = ($v{mime.isXml()}:Bool);
-			mime.isJson = ($v{mime.isJson()}:Bool);
-			mime.toplevel = ($v{mime.toplevel}:Null<String>);
-			mime.tree = ($v{mime.tree}:Null<String>);
-			mime.subtype = ($v{mime.subtype}:Null<String>);
-			mime.suffix = ($v{mime.suffix}:Null<String>);
-			mime.parameters = $parameters;
-			mime;
-		}
+			//var mime:MediaTypeStruct = new MediaTypeStruct();
+			isApplication: $v{mime.isApplication()},
+			isAudio: $v{mime.isAudio()},
+			isExample: $v{mime.isExample()},
+			isImage: $v{mime.isImage()},
+			isMessage: $v{mime.isMessage()},
+			isModel: $v{mime.isModel()},
+			isMultipart: $v{mime.isMultipart()},
+			isText: $v{mime.isText()},
+			isVideo: $v{mime.isVideo()},
+			isStandard: $v{mime.isStandard()},
+			isVendor: $v{mime.isVendor()},
+			isPersonal: $v{mime.isPersonal()},
+			isUnregistered: $v{mime.isUnregistered()},
+			isXml: $v{mime.isXml()},
+			isJson: $v{mime.isJson()},
+			toplevel: $v{mime.toplevel},
+			tree: $v{mime.tree},
+			subtype: $v{mime.subtype},
+			suffix: $v{mime.suffix},
+			parameters: $parameters,
+		}:MediaTypeStruct);
     }
 
     public static function newRuntimeMimeStruct(ident:Expr):Expr {
-        return macro @:mergeBlock {
-			var struct:MediaTypeStruct = new MediaTypeStruct();
-			struct.isApplication = ($ident.isApplication():Bool);
-			struct.isAudio = ($ident.isAudio():Bool);
-			struct.isExample = ($ident.isExample():Bool);
-			struct.isImage = ($ident.isImage():Bool);
-			struct.isMessage = ($ident.isMessage():Bool);
-			struct.isModel = ($ident.isModel():Bool);
-			struct.isMultipart = ($ident.isMultipart():Bool);
-			struct.isText = ($ident.isText():Bool);
-			struct.isVideo = ($ident.isVideo():Bool);
-			struct.isStandard = ($ident.isStandard():Bool);
-			struct.isVendor = ($ident.isVendor():Bool);
-			struct.isPersonal = ($ident.isPersonal():Bool);
-			struct.isUnregistered = ($ident.isUnregistered():Bool);
-			struct.isXml = ($ident.isXml():Bool);
-			struct.isJson = ($ident.isJson():Bool);
-			struct.toplevel = ($ident.toplevel:Null<String>);
-			struct.tree = ($ident.tree:Null<String>);
-			struct.subtype = ($ident.subtype:Null<String>);
-			struct.suffix = ($ident.suffix:Null<String>);
-			struct.parameters = $ident.parameters;
-		}
+        return macro ({
+			//var struct:MediaTypeStruct = new MediaTypeStruct();
+			isApplication: $ident.isApplication(),
+			isAudio: $ident.isAudio(),
+			isExample: $ident.isExample(),
+			isImage: $ident.isImage(),
+			isMessage: $ident.isMessage(),
+			isModel: $ident.isModel(),
+			isMultipart: $ident.isMultipart(),
+			isText: $ident.isText(),
+			isVideo: $ident.isVideo(),
+			isStandard: $ident.isStandard(),
+			isVendor: $ident.isVendor(),
+			isPersonal: $ident.isPersonal(),
+			isUnregistered: $ident.isUnregistered(),
+			isXml: $ident.isXml(),
+			isJson: $ident.isJson(),
+			toplevel: $ident.toplevel,
+			tree: $ident.tree,
+			subtype: $ident.subtype,
+			suffix: $ident.suffix,
+			parameters: $ident.parameters,
+		}:MediaTypeStruct);
     }
 
     public static function store(mime:MediaType, storage:ObjectDecl):Void {
@@ -78,12 +77,12 @@ class Helper {
 		for (v in [mime.toplevel, mime.tree, mime.subtype, mime.suffix]) if (v != null) {
 			if (containsIllegals(v)) {
 				for (i in splitIllegals(v)) {
-					paths.push(i);
+					paths.push(i.prefixIllegals());
 					
 				}
 				
 			} else {
-				paths.push(v);
+				paths.push(v.prefixIllegals());
 				
 			}
 			
@@ -139,6 +138,10 @@ class Helper {
 	}
 	
 	private static var illegals:EReg = ~/[\.\-]/ig;
+	private static var keywords:Array<String> = [
+		'package', 'import', 'class', 'abstract', 'interface', 'enum', 'typedef',
+		'var', 'switch', 'case', 'default'
+	];
 	
 	private static function replaceIllegals(value:String):String {
 		return splitIllegals( value ).map( capitalize1st ).join('_');
@@ -150,6 +153,14 @@ class Helper {
 	
 	private static inline function containsIllegals(value:String):Bool {
 		return illegals.match( value );
+	}
+
+	private static function prefixDigits(value:String):String {
+		return value.charCodeAt(0) >= '0'.code && value.charCodeAt(0) <= '9'.code ? '_$value' : value;
+	}
+
+	private static function prefixIllegals(value:String):String {
+		return keywords.indexOf( value = value.prefixDigits() ) > -1 ? '_$value' : value;
 	}
 
 }

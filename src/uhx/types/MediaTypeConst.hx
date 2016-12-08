@@ -22,7 +22,7 @@ abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct to MediaTypeStruct
 				result = macro ($e{mime.newMimeStruct()}:MediaTypeConst);
 				
 			case _:
-				var struct = newRuntimeMimeStruct(macro mime);
+				var struct = Helper.newRuntimeMimeStruct(macro mime);
                 
 				result = macro @:mergeBlock { 
 					var mime = ($v:MediaTypeAbstract);

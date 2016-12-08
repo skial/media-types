@@ -38,8 +38,8 @@ class MediaTypeStruct {
 	// Parameter
 	public var parameters:Null<StringMap<String>>;
 	
-	public inline function new() {
+	/*public inline function new() {
 		
-	}
+	}*/
 	
 }

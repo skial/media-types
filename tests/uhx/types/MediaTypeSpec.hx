@@ -1,6 +1,7 @@
 package uhx.types;
 
 import utest.Assert;
+import uhx.types.MimeDb;
 import uhx.types.MediaType;
 
 #if macro
