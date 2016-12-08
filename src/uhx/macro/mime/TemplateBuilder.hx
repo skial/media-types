@@ -77,7 +77,7 @@ class TemplateBuilder {
 		
 		var db = macro class MimeDb {
 			
-			public static var db = $e{toplevel.toExpr()};
+			//public static var db = $e{toplevel.toExpr()};
 			//public static var db:Map<String, MediaTypeConst> = [$a{entries}];
 
 		}
