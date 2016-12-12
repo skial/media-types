@@ -3,6 +3,7 @@ package ;
 import utest.Runner;
 import utest.ui.Report;
 
+@:keep
 class Main {
 	
 	public static function main() {

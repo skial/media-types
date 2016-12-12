@@ -4,7 +4,18 @@ import uhx.types.*;
 import haxe.macro.*;
 
 using StringTools;
+using haxe.macro.ExprTools;
 using uhx.macro.mime.Helper;
+
+/*@:forward abstract Pos({ min : Int, max : Int, file : String }) from { min : Int, max : Int, file : String } {
+
+	public inline function new(v) this = v;
+
+	@:from public static inline function fromPosition(v:Position):Pos {
+		return Context.getPosInfos(v);
+	}
+
+}*/
 
 class Helper {
 
@@ -17,7 +28,7 @@ class Helper {
 			parameters = macro $a{exprs};
 		}
         
-        return macro ({ 
+        return macro @:mime ({ 
 			// TODO generate random variable name as best as possible.
 			// TODO figure out why @:structInit created classes does not work.
 			//var mime:MediaTypeStruct = new MediaTypeStruct();
@@ -41,11 +52,12 @@ class Helper {
 			subtype: $v{mime.subtype},
 			suffix: $v{mime.suffix},
 			parameters: $parameters,
+			original: $v{mime.toString()},
 		}:MediaTypeStruct);
     }
 
     public static function newRuntimeMimeStruct(ident:Expr):Expr {
-        return macro ({
+        return macro @:mime ({
 			//var struct:MediaTypeStruct = new MediaTypeStruct();
 			isApplication: $ident.isApplication(),
 			isAudio: $ident.isAudio(),
@@ -67,6 +79,7 @@ class Helper {
 			subtype: $ident.subtype,
 			suffix: $ident.suffix,
 			parameters: $ident.parameters,
+			original: @:this this.toString(),
 		}:MediaTypeStruct);
     }
 

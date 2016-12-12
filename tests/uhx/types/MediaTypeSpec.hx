@@ -15,6 +15,7 @@ using uhx.macro.mime.Helper;
  * ...
  * @author Skial Bainn
  */
+@:keep
 class MediaTypeSpec {
 
 	public function new() {
@@ -118,5 +119,14 @@ class MediaTypeSpec {
 		Assert.equals( '{ text : { vnd : { a : { toString : function() return "text/vnd.a; a=b", b : "text/vnd.a.b" } } } }', tmpToplevel.toExpr().toString() );
 	}
 	#end
+
+	public function testMimeDb() {
+		var mime = MimeDb.Text_Plain;
+
+		Assert.equals( 'text', mime.toplevel );
+		Assert.equals( 'plain', mime.subtype );
+		Assert.isTrue( mime.isText() );
+		Assert.isNull( mime.parameters );
+	}
 	
 }

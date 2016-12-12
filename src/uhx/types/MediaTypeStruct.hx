@@ -5,6 +5,8 @@ import haxe.ds.StringMap;
 @:structInit
 class MediaTypeStruct {
 	
+	private var original:Null<String>;
+
 	// Toplevel checks
 	public var isApplication:Bool;
 	public var isAudio:Bool;
@@ -37,9 +39,25 @@ class MediaTypeStruct {
 	
 	// Parameter
 	public var parameters:Null<StringMap<String>>;
-	
-	/*public inline function new() {
-		
-	}*/
+
+	public function toString():String {
+		return if (original != null) {
+			original;
+
+		} else {
+			var result = '';
+			if (toplevel != null) result += toplevel;
+			if (tree != null && subtype == null) result += '/$tree';
+			if (tree == null && subtype != null) result += '/$subtype';
+			if (suffix != null) result += '+$suffix';
+			if (parameters != null) for (key in parameters.keys()) {
+				result += '; $key=${parameters.get(key)}';
+			}
+			
+			result;
+
+		}
+
+	}
 	
 }

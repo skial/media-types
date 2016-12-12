@@ -11,11 +11,13 @@ using haxe.macro.ExprTools;
 using uhx.macro.mime.Helper;
 #end
 
-abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct to MediaTypeStruct {
-	
+abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct {
+
 	@:from public static macro function fromExpr(v:Expr) {
 		var result = macro @:pos(v.pos) throw 'Could not convert the expression ' + $v{v.toString()} + ' to a mime type.';
-		
+		var local = haxe.macro.Context.getLocalType();
+		var method = haxe.macro.Context.getLocalMethod();
+
 		switch v {
 			case _.expr => EConst(CString(value)):
 				var mime = (value:uhx.types.MediaTypeAbstract);
@@ -26,15 +28,14 @@ abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct to MediaTypeStruct
                 
 				result = macro @:mergeBlock { 
 					var mime = ($v:MediaTypeAbstract);
-					$struct;
-					(struct:MediaTypeConst);
+					($struct:MediaTypeConst);
 				}
 				
 		}
 		
 		return macro @:pos(v.pos) $result;
 	}
-	
+
 	public inline function isApplication():Bool return this.isApplication;
 	public inline function isAudio():Bool return this.isAudio;
 	public inline function isExample():Bool return this.isExample;
@@ -68,20 +69,5 @@ abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct to MediaTypeStruct
 	private inline function get_parameters():Null<StringMap<String>> {
 		return this.parameters;
 	}
-	
-	// TODO think about adding `toString` field to MediaTypeStruct
-	// and defering to constant or runtime values instead of running
-	// the following each time.
-	@:to public inline function toString():String {
-		var result = '';
-		if (toplevel != null) result += toplevel;
-		if (tree != null && subtype == null) result += '/$tree';
-		if (tree == null && subtype != null) result += '/$subtype';
-		if (suffix != null) result += '+$suffix';
-		if (parameters != null) for (key in parameters.keys()) {
-			result += '; $key=${parameters.get(key)}';
-		}
-		return result;
-	}
-	
+
 }

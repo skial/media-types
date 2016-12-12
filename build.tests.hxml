@@ -4,6 +4,8 @@
 -lib utest
 -lib media-types
 
+-dce full
+
 -main Main
 
 --each
