@@ -15,3 +15,7 @@
 --next
 
 -js bin/spec.js
+
+--next
+
+-hl bin/spec.hl

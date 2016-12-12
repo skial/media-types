@@ -70,4 +70,6 @@ abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct {
 		return this.parameters;
 	}
 
+	public inline function toString() return this.toString();
+
 }

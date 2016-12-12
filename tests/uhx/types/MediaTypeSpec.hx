@@ -127,6 +127,7 @@ class MediaTypeSpec {
 		Assert.equals( 'plain', mime.subtype );
 		Assert.isTrue( mime.isText() );
 		Assert.isNull( mime.parameters );
+		Assert.equals( 'text/plain', mime.toString() );
 	}
 	
 }
