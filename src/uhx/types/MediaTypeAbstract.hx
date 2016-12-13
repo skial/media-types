@@ -104,5 +104,18 @@ abstract MediaTypeAbstract(Array<Token<MimeKeywords>>) from Array<Token<MimeKeyw
 			
 		}
 	}
+
+
+	// Extra info.
+	
+	public var charset(get, never):Null<String>;
+	public var source(get, never):Null<MimeSource>;
+	public var compressible(get, never):Null<Bool>;
+	public var extensions(get, never):Null<Array<String>>;
+
+	private inline function get_charset():Null<String> return null;
+	private inline function get_source():Null<MimeSource> return null;
+	private inline function get_compressible():Null<Bool> return null;
+	private inline function get_extensions():Null<Array<String>> return null;
 	
 }

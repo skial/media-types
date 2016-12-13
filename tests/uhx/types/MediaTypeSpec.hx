@@ -129,5 +129,18 @@ class MediaTypeSpec {
 		Assert.isNull( mime.parameters );
 		Assert.equals( 'text/plain', mime.toString() );
 	}
+
+	public function testMimeDb_extraInfo() {
+		var mime = MimeDb.Video_X_Ms_Wmv;
+
+		Assert.isNull( mime.charset );
+		Assert.isFalse( mime.compressible );
+		Assert.equals( '[wmv]', '' + mime.extensions );
+		Assert.equals( MimeSource.Apache, mime.source );
+
+		var mime = MimeDb.Text_Vtt;
+
+		Assert.equals( 'UTF-8', mime.charset );
+	}
 	
 }
