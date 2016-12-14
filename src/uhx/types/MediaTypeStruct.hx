@@ -63,8 +63,8 @@ class MediaTypeStruct {
 	// Compile time embedded info.
 
 	public var charset:Null<String>;
-	public var source:Null<MimeSource>;
  	public var compressible:Null<Bool>;
+	public var source:Null<MediaTypeSource>;
 	public var extensions:Null<Array<String>>;
 	
 }

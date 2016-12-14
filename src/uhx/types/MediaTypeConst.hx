@@ -73,12 +73,12 @@ abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct {
 	public inline function toString() return this.toString();
 
 	public var charset(get, never):Null<String>;
-	public var source(get, never):Null<MimeSource>;
+	public var source(get, never):Null<MediaTypeSource>;
 	public var compressible(get, never):Null<Bool>;
 	public var extensions(get, never):Null<Array<String>>;
 
 	private inline function get_charset():Null<String> return this.charset;
-	private inline function get_source():Null<MimeSource> return this.source;
+	private inline function get_source():Null<MediaTypeSource> return this.source;
 	private inline function get_compressible():Null<Bool> return this.compressible;
 	private inline function get_extensions():Null<Array<String>> return this.extensions;
 

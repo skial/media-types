@@ -1,8 +1,8 @@
 package uhx.types;
 
 import utest.Assert;
-import uhx.types.MimeDb;
 import uhx.types.MediaType;
+import uhx.types.MediaTypes;
 
 #if macro
 import uhx.types.ObjectDecl;
@@ -120,8 +120,8 @@ class MediaTypeSpec {
 	}
 	#end
 
-	public function testMimeDb() {
-		var mime = MimeDb.Text_Plain;
+	public function testMediaTypes() {
+		var mime = MediaTypes.Text_Plain;
 
 		Assert.equals( 'text', mime.toplevel );
 		Assert.equals( 'plain', mime.subtype );
@@ -130,15 +130,15 @@ class MediaTypeSpec {
 		Assert.equals( 'text/plain', mime.toString() );
 	}
 
-	public function testMimeDb_extraInfo() {
-		var mime = MimeDb.Video_X_Ms_Wmv;
+	public function testMediaTypes_extraInfo() {
+		var mime = MediaTypes.Video_X_Ms_Wmv;
 
 		Assert.isNull( mime.charset );
 		Assert.isFalse( mime.compressible );
 		Assert.equals( '[wmv]', '' + mime.extensions );
-		Assert.equals( MimeSource.Apache, mime.source );
+		Assert.equals( MediaTypeSource.Apache, mime.source );
 
-		var mime = MimeDb.Text_Vtt;
+		var mime = MediaTypes.Text_Vtt;
 
 		Assert.equals( 'UTF-8', mime.charset );
 	}

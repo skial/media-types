@@ -19,7 +19,7 @@ using uhx.macro.mime.Helper;
 
 class Helper {
 
-    public static function newMimeStruct(mime:MediaType, ?entry:MimeEntry):Expr {
+    public static function newMimeStruct(mime:MediaType, ?entry:MediaTypeEntry):Expr {
         var parameters = macro null;
 
 		if (entry == null) entry = {
@@ -61,7 +61,7 @@ class Helper {
 			parameters: $parameters,
 			original: $v{mime.toString()},
 			charset: $v{entry.charset},
-			source: $e{ entry.source != null ? macro ($v{entry.source}:MimeSource) : macro null },
+			source: $e{ entry.source != null ? macro ($v{entry.source}:MediaTypeSource) : macro null },
 			compressible: $v{entry.compressible},
 			extensions: $v{entry.extensions},
 		}:MediaTypeStruct);

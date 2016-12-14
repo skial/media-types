@@ -22,7 +22,7 @@ class TemplateBuilder {
 	public static var resources:String = '$cwd/res/mime-db/';
 	public static inline var current:String = '1.25.0';
 	public static inline var file:String = 'db.json';
-    public static var outputFile:String = '$cwd/src/uhx/types/MimeDb.hx';
+    public static var outputFile:String = '$cwd/src/uhx/types/MediaTypes.hx';
 	
 	private static var printer:Printer = new Printer();
     private static var toplevel:ObjectDecl = new ObjectDecl();
@@ -30,7 +30,7 @@ class TemplateBuilder {
 	public static macro function build() {
 		var path = '$resources$current/$file'.normalize();
 		if (!path.exists()) throw '$path does not exist. Please open an issue at https://github.com/skial/media-types/issues/.';
-		var json:DynamicAccess<MimeEntry> = haxe.Json.parse( path.getContent() );
+		var json:DynamicAccess<MediaTypeEntry> = haxe.Json.parse( path.getContent() );
 		var map:StringMap<Expr> = new StringMap();
 		var entries = [for (key in json.keys()) {
 			var entry = json.get( key );
@@ -50,7 +50,7 @@ class TemplateBuilder {
 			field;
 		}];
 		
-		var db = macro class MimeDb {
+		var db = macro class MediaTypes {
 			
 			//public static var db = $e{toplevel.toExpr()};
 			//public static var db:Map<String, MediaTypeConst> = [$a{entries}];
@@ -65,12 +65,12 @@ class TemplateBuilder {
 		return null;
 	}
 
-	public static function modifyStruct(expr:Expr, entry:MimeEntry):Expr {
+	public static function modifyStruct(expr:Expr, entry:MediaTypeEntry):Expr {
 		switch expr {
 			case _.expr => EMeta( { name:':mime' }, _.expr => EParenthesis( _.expr => ECheckType( _.expr => EObjectDecl(fields), type ) ) ):
 				var nfields = [];
 				nfields.push( { field: 'charset', expr: macro $v{entry.charset} } );
-				nfields.push( { field: 'source', expr: entry.source != null ? macro ($v{entry.source}:MimeSource) : macro null } );
+				nfields.push( { field: 'source', expr: entry.source != null ? macro ($v{entry.source}:MediaTypeSource) : macro null } );
 				nfields.push( { field: 'compressible', expr: macro $v{entry.compressible} } );
 				nfields.push( { field: 'extensions', expr: macro $v{entry.extensions} } );
 				
