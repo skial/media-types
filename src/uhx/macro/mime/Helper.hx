@@ -2,6 +2,7 @@ package uhx.macro.mime;
 
 import uhx.types.*;
 import haxe.macro.*;
+import uhx.lexer.Mime;
 
 using StringTools;
 using haxe.macro.ExprTools;
@@ -17,7 +18,90 @@ using uhx.macro.mime.Helper;
 
 }*/
 
+private typedef Token = uhx.mo.Token<MimeKeywords>;
+private typedef Tokens = Array<Token>;
+
 class Helper {
+
+	public static macro function mime(expr:Expr):Expr {
+		var result = transform( expr );
+		var mime:MediaTypeAbstract = result;
+
+		if (result.length == 0) Context.error( 'Mime type expression `${expr.toString()}` can not be transformed', expr.pos );
+
+		return macro @:pos(expr.pos) ($e{ mime.newMimeStruct() }:MediaTypeConst);
+	} 
+
+	#if macro
+	private static function transform(expr:Expr):Tokens {
+		var result = switch expr {
+			case _.expr => EBlock(exprs) | EArrayDecl(exprs):
+				var results = [];
+
+				for (expr in exprs) for (token in transform(expr)) {
+					results.push( token );
+
+				}
+
+				results;
+
+			case macro $e1 / $e2:
+				var toplevel = Keyword( Toplevel( e1.toString() ) );
+				var rest = transform( e2 );
+				rest.unshift( toplevel );
+				rest;
+
+			case _.expr => EField(e, name):
+				var before = transform(e);
+				
+				switch before[before.length-1] { 
+					case Keyword(Subtype(v)), Keyword(Tree(v)):
+						before[before.length-1] = Keyword(Tree('$v.$name'));
+
+					case _:
+						before.push( Keyword(Tree(name)) );
+
+				}
+
+				before;
+
+			case macro $e1 + $e2:
+				var first = transform(e1);
+				first.push( Keyword( Suffix( e2.toString() ) ) );
+				first;
+
+			case macro $e1 - $e2:
+				// This might break as e2 is not being transformed.
+				var first = transform(e1);
+				
+				first[first.length-1] = switch first[first.length-1] {
+					case Keyword(Subtype(v)):
+						Keyword(Subtype( '$v-' + e2.toString() ));
+
+					case Keyword(Tree(v)):
+						Keyword(Tree( '$v-' + e2.toString() ));
+
+					case x:
+						x;
+
+				}
+
+				first;
+
+			case macro $i1 = $i2:
+				[Keyword( Parameter( i1.toString().replace(' ', ''), i2.toString().replace(' ', '') ) )];
+			
+			case _.expr => EConst(CIdent(v)):
+				[Keyword( Subtype( v ) )];
+
+			case _:
+				trace(expr);
+				[];
+
+		}
+
+		return result;
+	}
 
     public static function newMimeStruct(mime:MediaType, ?entry:MediaTypeEntry):Expr {
         var parameters = macro null;
@@ -190,5 +274,6 @@ class Helper {
 	private static function prefixIllegals(value:String):String {
 		return keywords.indexOf( value = value.prefixDigits() ) > -1 ? '_$value' : value;
 	}
+	#end
 
 }

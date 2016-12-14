@@ -3,6 +3,7 @@ package uhx.types;
 import utest.Assert;
 import uhx.types.MediaType;
 import uhx.types.MediaTypes;
+import uhx.macro.mime.Helper.mime;
 
 #if macro
 import uhx.types.ObjectDecl;
@@ -141,6 +142,17 @@ class MediaTypeSpec {
 		var mime = MediaTypes.Text_Vtt;
 
 		Assert.equals( 'UTF-8', mime.charset );
+	}
+
+	public function testMediaType_haxeExpression() {
+		// Can't have `text/vnd.a.1.2` as the numbers are invalid haxe access.
+		// TODO consider adding array access `a[1][2]` notation which gets converted to `a.1.2`.
+		var mime = mime([text/vnd.a.b-c.d.e.f+txt, charset=UTF-8, hello=world, name=skial-bainn]);
+
+		Assert.equals( 'text', mime.toplevel );
+		Assert.isTrue( mime.isVendor() );
+		Assert.equals( 'vnd.a.b-c.d.e.f', mime.tree );
+		
 	}
 	
 }

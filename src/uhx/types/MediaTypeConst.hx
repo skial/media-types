@@ -23,13 +23,17 @@ abstract MediaTypeConst(MediaTypeStruct) from MediaTypeStruct {
 				var mime = (value:uhx.types.MediaTypeAbstract);
 				result = macro ($e{mime.newMimeStruct()}:MediaTypeConst);
 				
-			case _:
+			case macro @:this this:
 				var struct = Helper.newRuntimeMimeStruct(macro mime);
                 
 				result = macro @:mergeBlock { 
 					var mime = ($v:MediaTypeAbstract);
 					($struct:MediaTypeConst);
 				}
+
+			case _:
+				var mime:MediaTypeAbstract = v.mime(); 
+				result = macro ($e{mime.newMimeStruct()}:MediaTypeConst);
 				
 		}
 		
