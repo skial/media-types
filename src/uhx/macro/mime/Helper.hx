@@ -30,7 +30,7 @@ class Helper {
 		if (result.length == 0) Context.error( 'Mime type expression `${expr.toString()}` can not be transformed', expr.pos );
 
 		return macro @:pos(expr.pos) ($e{ mime.newMimeStruct() }:MediaTypeConst);
-	} 
+	}
 
 	#if macro
 	private static function transform(expr:Expr):Tokens {

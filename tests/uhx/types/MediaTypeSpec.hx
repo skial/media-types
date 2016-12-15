@@ -144,6 +144,7 @@ class MediaTypeSpec {
 		Assert.equals( 'UTF-8', mime.charset );
 	}
 
+	#if !macro
 	public function testMediaType_haxeExpression() {
 		// Can't have `text/vnd.a.1.2` as the numbers are invalid haxe access.
 		// TODO consider adding array access `a[1][2]` notation which gets converted to `a.1.2`.
@@ -154,5 +155,6 @@ class MediaTypeSpec {
 		Assert.equals( 'vnd.a.b-c.d.e.f', mime.tree );
 		
 	}
+	#end
 	
 }
