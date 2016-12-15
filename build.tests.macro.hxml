@@ -1,0 +1,8 @@
+-cp ./src
+-cp ./tests
+
+-lib utest
+-lib media-types
+
+-main Main
+--macro Main.main()

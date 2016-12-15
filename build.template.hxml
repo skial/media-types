@@ -1,0 +1,3 @@
+-cp src
+-lib media-types
+--macro uhx.macro.mime.TemplateBuilder.build()
